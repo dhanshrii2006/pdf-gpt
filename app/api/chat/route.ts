@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Message } from 'ai'
+import { StreamingTextResponse, Message } from 'ai'
 import { db } from '@/db'
 import { chats } from '@/db/schema'
 import { eq } from 'drizzle-orm'
@@ -21,8 +21,14 @@ export async function POST(request: NextRequest) {
       chatId: number
     } = await request.json()
 
+    await getFileKeyByChatId(chatId, () => {
+      return NextResponse.json({ error: 'Chat not found' })
+    })
+
     const lastMessage = messages[messages.length - 1]
+    console.log(lastMessage);
     const context = await getContext(lastMessage.content, chatId)
+    console.log("context", context);
     
     const prompt = `AI assistant is a brand new, powerful, human-like artificial intelligence.
 The traits of AI include expert knowledge, helpfulness, cleverness, and articulateness.
@@ -59,6 +65,7 @@ Do not use Markdown, bullet points, numbering, headings, bold, italics, or speci
 
     let fullText = "";
     
+    // Create a readable stream that formats data for AI SDK
     const stream = new ReadableStream({
       async start(controller) {
         const encoder = new TextEncoder();
@@ -76,11 +83,12 @@ Do not use Markdown, bullet points, numbering, headings, bold, italics, or speci
           console.error('Stream error:', err);
           controller.error(err);
         } finally {
+          // Save the complete response to database
           if (fullText) {
             await db.insert(_messages).values({
               chatId,
               content: fullText,
-              role: 'system',
+              role: 'system',  // Keep as 'system' for database
             });
           }
           controller.close();
@@ -88,6 +96,7 @@ Do not use Markdown, bullet points, numbering, headings, bold, italics, or speci
       },
     });
 
+    // Return with proper headers for AI SDK streaming
     return new Response(stream, {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
@@ -101,4 +110,10 @@ Do not use Markdown, bullet points, numbering, headings, bold, italics, or speci
       { status: 500 }
     )
   }
+}
+
+async function getFileKeyByChatId(chatId: number, onError: Function) {
+  const _chats = await db.select().from(chats).where(eq(chats.id, chatId))
+  if (_chats.length !== 1) onError()
+  return _chats[0].fileKey
 }

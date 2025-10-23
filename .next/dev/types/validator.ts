@@ -65,10 +65,19 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
-// Validate ../../../app/chat/chatId/page.tsx
+// Validate ../../../app/chat/[chatId]/page.tsx
 {
-  type __IsExpected<Specific extends AppPageConfig<"/chat/chatId">> = Specific
-  const handler = {} as typeof import("../../../app/chat/chatId/page.js")
+  type __IsExpected<Specific extends AppPageConfig<"/chat/[chatId]">> = Specific
+  const handler = {} as typeof import("../../../app/chat/[chatId]/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../../app/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/">> = Specific
+  const handler = {} as typeof import("../../../app/page.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check

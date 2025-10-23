@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 3, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/aryan/Desktop/New%20folder%20%283%29/PDF-GPT-1/node_modules/.pnpm/next%4016.0.0_%40babel%2Bcore%407.2_d60670e6a5c5d0ef7d2c28427c6f3fae/node_modules/next/app.js"],"sourcesContent":["module.exports = require('./dist/pages/_app')\n"],"names":[],"mappings":"AAAA,OAAO,OAAO","ignoreList":[0],"debugId":null}}]
+}
